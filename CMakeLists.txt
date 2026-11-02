@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(PICO_BOARD pico2)   # RP2350
-# Copy pico_sdk_import.cmake from $PICO_SDK_PATH/external/ into this folder
-include(pico_sdk_import.cmake)
+
+# Use the import script shipped with the SDK (no local copy needed).
+# PICO_SDK_PATH can come from -DPICO_SDK_PATH=... or from the environment.
+if(NOT PICO_SDK_PATH AND DEFINED ENV{PICO_SDK_PATH})
+    set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
+endif()
+if(NOT PICO_SDK_PATH)
+    message(FATAL_ERROR "PICO_SDK_PATH is not set")
+endif()
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 project(usb_i2s_dac C CXX ASM)
 set(CMAKE_C_STANDARD 11)
