@@ -1,0 +1,25 @@
+name: Build firmware
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential python3
+      - name: Get Pico SDK 2.1.1
+        run: |
+          git clone --depth 1 --branch 2.1.1 https://github.com/raspberrypi/pico-sdk.git $HOME/pico-sdk
+          git -C $HOME/pico-sdk submodule update --init --depth 1 lib/tinyusb
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja -DPICO_BOARD=pico2 -DPICO_SDK_PATH=$HOME/pico-sdk
+          cmake --build build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: usb_dac
+          path: build/sb_dac.uf2
